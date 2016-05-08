@@ -8,17 +8,26 @@ function RPC(func, port) {
         });
         client.on('data', function(data) {
             // "add 1,2"
-            console.log(data.toString());
+            console.log('data: ' + data.toString());
             var data = data.toString();
-            var funcName = data.split(' ')[0];
-            var params = JSON.parse(data.split(' ')[1]);
-            var result = func[funcName].apply(func, params);
-            console.log(result);
-            if(typeof(result.then) === 'function'){
-                result.then(result => client.write(result.toString()));    
-            }else{
-                client.write(result.toString());    
+            if (data == 'init') {
+                var result = [];
+                for (var funcName in func) {
+                    result.push(funcName);
+                }
+                console.log(JSON.stringify(result));
+                client.write(JSON.stringify(result));
+            } else {
+                var funcName = data.split(' ')[0];
+                var params = JSON.parse(data.split(' ')[1]);
+                var result = func[funcName].apply(func, params);
+                if (typeof(result.then) === 'function') {
+                    result.then(result => client.write(result.toString()));
+                } else {
+                    client.write(result.toString());
+                }
             }
+
         })
     });
     server.listen(port, function() { // 'listening' 监听器
