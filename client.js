@@ -1,30 +1,15 @@
 var net = require('net');
-// var client = net.connect({ port: 8124 }, function() { //'connect' 监听器
-//     console.log('client connected');
-//     client.write('add [1,2]');
-//     setTimeout(() => {
-//         client.write('add [3,4]');
-//     }, 500);
-//     setTimeout(() => {
-//         client.write('add [5,6]');
-//     }, 500);
-//     client.write('add [7,8]');
-// });
-// client.on('data', function(data) {
-//     console.log(data.toString());
-// });
-// client.on('end', function() {
-//     console.log('客户端断开连接');
-// });
-
-
 rpcClient = {
-    create: function(port, callback) {
-        
-        var client = net.connect({ port: port }, () => client.write('init'))
+    create: function(port, path, callback) {
+        var start = new Date().getTime();
+        var client = net.connect(port, path, () => {
+            var end = new Date().getTime();
+            console.log('tcp time:', end - start);
+            client.write('init')
+        })
         client.on('data', (data) => {
             var funcNames = JSON.parse(data.toString());
-            var rpc = new rpcStatic(port);
+            var rpc = new rpcStatic(port, path);
             funcNames.forEach(funcName => {
                 rpc[funcName] = new Function(`
                     var params = Array.prototype.slice.call(arguments,0,arguments.length-1);
@@ -33,28 +18,34 @@ rpcClient = {
             })
             client.end();
             callback(rpc);
-            
         });
     },
 }
 
 
-function rpcStatic(port){
+function rpcStatic(port, path) {
     this.__callServer = function(funcName, params, callback) {
-        var client = net.connect({ port: port }, () => {
+        var start = new Date().getTime();
+        var client = net.connect(port, path, () => {
+            var end = new Date().getTime();
+            console.log('tcp time:', end - start);
             client.write(funcName + ' ' + JSON.stringify(params));
             client.on('data', data => {
-                callback(data.toString())
+                client.end();
+                callback(JSON.parse(data.toString()));
             });
         })
     }
 }
 
+rpcClient.create(8124, 'localhost', function(rpc) {
 
-rpcClient.create(8124, function(rpc) {
-    rpc.add(1,2,result => console.log(result));
+    rpc.add(1, 2, result => console.log(result));
 
-    rpc.add(1,2,result => console.log(result));
+    rpc.fib(40, 23, result => console.log(result));
 
-    rpc.add(1,2,result => console.log(result));
+    rpc.add(1, 2, result => console.log(result));
+
+    rpc.make(1, result => console.log(result));
 })
+
