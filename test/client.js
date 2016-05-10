@@ -1,7 +1,8 @@
 var net = require('net');
+var uuid = require('node-uuid');
 
 function jsonRpcData(message, body) {
-    this.id = new Date().getTime();
+    this.id = uuid.v4();
     this.message = message;
     this.body = body;
 }
@@ -9,6 +10,7 @@ function jsonRpcData(message, body) {
 var rpcClient = {
     __client: undefined,
     __tmpSendDataStack: [],
+    __callbackStore: {},
     __init: function() {
         var data = new jsonRpcData('init');
         this.__send(data);
@@ -17,7 +19,6 @@ var rpcClient = {
         var data = JSON.parse(data);
         switch (data.message) {
             case 'init':
-                //init的body是一个函数名string组成的数组
                 var rpc = {
                     __send: this.__send.bind(this),
                     __functionCall: this.__functionCall.bind(this)
@@ -34,7 +35,10 @@ var rpcClient = {
                 this.__rpcStaticCallback(rpc);
                 break;
             case 'function call':
-                console.log(data);
+                var result = data.body.result;
+                var id = data.id;
+                this.__callbackStore[id](result);
+                this.__clearCallback(id);
                 break;
         }
     },
@@ -69,10 +73,24 @@ var rpcClient = {
             funcName: funcName,
             params: params
         });
+        this.__registerCallback(data.id, callback);
         this.__send(data);
+    },
+    __registerCallback: function(id, callback) {
+        this.__callbackStore[id] = callback;
+    },
+    __clearCallback: function(id) {
+        delete this.__callbackStore[id];
     }
 }
 
 rpcClient.create(client => {
-    client.add(1,2, result => console.log(result));
+    client.promise(result => console.log('result for promise: ',result));
+    client.add(1, 2, result => console.log(result));
+    client.add(3, 4, result => console.log(result));
+    client.add(5, 6, result => console.log(result));
+    client.add(7, 8, result => console.log(result));
+    client.add(9, 10, result => console.log(result));
+    client.add(11, 12, result => console.log(result));
+    client.add(13, 14, result => console.log(result));
 })
