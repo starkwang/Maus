@@ -1,18 +1,4 @@
 var net = require('net');
-// var client = net.connect({ port: 8124 }, function() { //'connect' 监听器
-//     console.log('client connected');
-// });
-// client.on('data', function(data) {
-//     console.log(data.toString());
-//     client.write('hello from client');
-//     client.write('hello from client');
-//     client.write('hello from client');
-//     client.end();
-// });
-// client.on('end', function() {
-//     console.log('客户端断开连接');
-// });
-
 
 function jsonRpcData(message, body) {
     this.id = new Date().getTime();
@@ -32,16 +18,24 @@ var rpcClient = {
         switch (data.message) {
             case 'init':
                 //init的body是一个函数名string组成的数组
-                var rpc = {};
+                var rpc = {
+                    __send: this.__send.bind(this),
+                    __functionCall: this.__functionCall.bind(this)
+                };
                 var funcNames = data.body;
-
                 funcNames.forEach(funcName => {
                     rpc[funcName] = new Function(`
-                        console.log("${funcName}")
+                        console.log("call ${funcName}");
+                        var params = Array.prototype.slice.call(arguments,0,arguments.length-1);
+                        this.__functionCall('${funcName}',params,arguments[arguments.length-1])
                     `)
                 })
-                this.__rpcStaticCallback(rpc);
 
+                this.__rpcStaticCallback(rpc);
+                break;
+            case 'function call':
+                console.log(data);
+                break;
         }
     },
     create: function(callback) {
@@ -70,9 +64,15 @@ var rpcClient = {
             this.__tmpSendDataStack.push(data);
         }
     },
+    __functionCall: function(funcName, params, callback) {
+        var data = new jsonRpcData('function call', {
+            funcName: funcName,
+            params: params
+        });
+        this.__send(data);
+    }
 }
 
 rpcClient.create(client => {
-    console.log(client);
-    client.add();
+    client.add(1,2, result => console.log(result));
 })
