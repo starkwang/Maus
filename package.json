@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/starkwang/RPC/issues"
   },
-  "homepage": "https://github.com/starkwang/RPC#readme"
+  "homepage": "https://github.com/starkwang/RPC#readme",
+  "dependencies": {
+    "node-uuid": "^1.4.7"
+  }
 }

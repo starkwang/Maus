@@ -31,7 +31,9 @@ var rpcServer = {
             case 'init':
                 var body = [];
                 for (var funcName in this.__funcs) {
-                    body.push(funcName);
+                    if(typeof(this.__funcs[funcName]) == 'function'){
+                        body.push(funcName);
+                    }
                 }
                 this.__send(data.id, 'init', body, socketID);
                 break;

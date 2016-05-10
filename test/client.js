@@ -11,6 +11,24 @@ var rpcClient = {
     __client: undefined,
     __tmpSendDataStack: [],
     __callbackStore: {},
+    create: function(callback) {
+        this.__rpcStaticCallback = callback;
+        var client = net.connect({ port: 8124 }, () => { //'connect' 监听器
+            console.log('client connected');
+            this.__client = client;
+            this.__init();
+            if (this.__tmpSendDataStack.length > 0) {
+                this.__tmpSendDataStack.forEach(data => this.__send(data));
+            }
+        });
+        client.on('data', data => {
+            console.log('recieve data:', data.toString());
+            var data = data.toString();
+            var dataArr = data.split('\r\n');
+            dataArr.pop();
+            dataArr.forEach(data => this.__handleData(data));
+        });
+    },
     __init: function() {
         var data = new jsonRpcData('init');
         this.__send(data);
@@ -42,24 +60,6 @@ var rpcClient = {
                 break;
         }
     },
-    create: function(callback) {
-        this.__rpcStaticCallback = callback;
-        var client = net.connect({ port: 8124 }, () => { //'connect' 监听器
-            console.log('client connected');
-            this.__client = client;
-            this.__init();
-            if (this.__tmpSendDataStack.length > 0) {
-                this.__tmpSendDataStack.forEach(data => this.__send(data));
-            }
-        });
-        client.on('data', data => {
-            console.log('recieve data:', data.toString());
-            var data = data.toString();
-            var dataArr = data.split('\r\n');
-            dataArr.pop();
-            dataArr.forEach(data => this.__handleData(data));
-        });
-    },
     __send: function(data) {
         if (this.__client != undefined) {
             var json = JSON.stringify(data);
@@ -85,7 +85,7 @@ var rpcClient = {
 }
 
 rpcClient.create(client => {
-    client.promise(result => console.log('result for promise: ',result));
+    client.promise(result => console.log('result for promise: ', result));
     client.add(1, 2, result => console.log(result));
     client.add(3, 4, result => console.log(result));
     client.add(5, 6, result => console.log(result));
