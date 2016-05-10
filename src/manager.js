@@ -69,8 +69,8 @@ var rpcManager = {
 
                 //检查队列中是否有等待的任务
                 if (this.__functionCallQueue.length > 0) {
-                    this.__send(this.__functionCallQueue.shift(),workerID);
-                }else{
+                    this.__send(this.__functionCallQueue.shift(), workerID);
+                } else {
                     this.__workerList[workerID].isBusy = false;
                 }
                 break;
@@ -112,36 +112,4 @@ var rpcManager = {
     }
 }
 
-rpcManager.create(workers => {
-    // workers.promise(result => console.log('result for promise: ', result));
-    // workers.add(1, 2, result => console.log(result));
-    // workers.add(3, 4, result => console.log(result));
-    // workers.add(5, 6, result => console.log(result));
-    // workers.add(7, 8, result => console.log(result));
-    // workers.add(9, 10, result => console.log(result));
-    // workers.add(11, 12, result => console.log(result));
-    // workers.add(13, 14, result => console.log(result));
-    // workers.fib(40, result => console.log(result));
-
-    var add = function(x, y) {
-        return Promise.all([x, y]).then(arr => {
-            return new Promise((resolve, reject) => {
-                workers.add(arr[0], arr[1], r => resolve(r));
-            })
-        })
-    }
-
-    var fib = function(x) {
-        if (x < 2) {
-            return x;
-        } else {
-            return add(fib(x - 1), fib(x - 2));
-        }
-    }
-
-    fib(10).then(r => console.log('\n\n\n==========\nresult: ' + r + '\n==========\n\n'));
-}, 8124)
-
-setTimeout(() => {
-    rpcManager.start()
-}, 8000);
+module.exports = rpcManager;

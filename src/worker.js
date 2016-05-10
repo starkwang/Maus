@@ -59,13 +59,4 @@ var rpcWorker = {
     }
 }
 
-var fib = x => x > 1 ? fib(x - 1) + fib(x - 2) : x;
-
-rpcWorker.create({
-    add: (x, y) => x + y,
-    promise: () => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => resolve('promise'), 1000)
-        })
-    }
-}, 'http://192.168.1.100:8124');
+module.exports = rpcWorker;

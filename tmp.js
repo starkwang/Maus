@@ -79,5 +79,6 @@ rpcWorker.create({
                 return resolve('promise');
             }, 1000);
         });
-    }
+    },
+    fib: fib
 }, 'http://192.168.1.100:8124');
