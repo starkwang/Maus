@@ -8,27 +8,16 @@ app.listen(3000);
 
 rpcManager.create(workers => {
     console.log('task start!')
-    var fib = x => x > 1 ? fib(x - 1) + fib(x - 2) : x;
-    // var startTime = new Date().getTime();
-    // var result = fib(45);
-    // var endTime = new Date().getTime();
-    // console.log('native run time:', endTime - startTime, 'result:', result);
-
-    var fibWorkers = function(x) {
-        return new Promise((resolve, reject) => {
-            workers.fib(x, r => resolve(r))
-        })
+    var add = function(x, y) {
+        return Promise.all([x, y])
+            .then(arr => new Promise((resolve, reject) => {
+                workers.add(arr[0], arr[1], result => resolve(result));
+            }))
     }
 
+    var fib = x => x > 1? add(fib(x-1), fib(x-2)) : x;
 
-    var startTime = new Date().getTime();
-    Promise.all([fibWorkers(42),fibWorkers(41), fibWorkers(43), fibWorkers(42)]).then(arr => {
-        var result = arr.reduce((a, b) => a + b);
-        console.log('\n\n==========\nresult:' + result + '\n==========\n');
-
-        var endTime = new Date().getTime();
-        console.log('DCS run time:', endTime - startTime, 'result:', result);
-    })
+    fib(10);
 }, 8124)
 
 setTimeout(() => {

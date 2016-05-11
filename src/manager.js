@@ -15,7 +15,7 @@ var rpcManager = {
     __callbackStore: {},
     __functionCallQueue: [],
     create: function(callback, port) {
-        this.__rpcStaticCallback = callback;
+        this.__workersStaticCallback = callback;
         io.on('connection', worker => {
             console.log('worker connected');
             var workerID = uuid.v4();
@@ -41,19 +41,20 @@ var rpcManager = {
     __handleData: function(data, workerID) {
         switch (data.message) {
             case 'init':
-                var rpc = {
+                var workers = {
                     __send: this.__send.bind(this),
                     __functionCall: this.__functionCall.bind(this)
                 };
                 var funcNames = data.body;
                 funcNames.forEach(funcName => {
-                    rpc[funcName] = new Function(`
+                    workers[funcName] = new Function(`
                         console.log("call ${funcName}");
                         var params = Array.prototype.slice.call(arguments,0,arguments.length-1);
-                        this.__functionCall('${funcName}',params,arguments[arguments.length-1])
+                        var callback = arguments[arguments.length-1];
+                        this.__functionCall('${funcName}',params,callback);
                     `)
                 })
-                this.__rpc = rpc;
+                this.__workers = workers;
                 if (this.__waitingForInit) {
                     this.start();
                 }
@@ -71,8 +72,8 @@ var rpcManager = {
         }
     },
     start: function(callback) {
-        if (this.__rpc != undefined) {
-            this.__rpcStaticCallback(this.__rpc);
+        if (this.__workers != undefined) {
+            this.__workersStaticCallback(this.__workers);
             this.__waitingForInit = false;
         } else {
             this.__waitingForInit = true;
