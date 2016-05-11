@@ -2,7 +2,7 @@ var webpack = require('webpack');
 module.exports = {
     entry: './test/worker.js',
     output: {
-        filename: 'worker-browser.bundle.js'
+        filename: './test/worker-browser.bundle.js'
     },
     module: {
         loaders: [{

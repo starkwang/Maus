@@ -2,8 +2,8 @@ var rpcManager = require('../src/manager');
 var express = require('express');
 var app = express();
 
-app.use('/js', express.static('./'));
-app.use('/', express.static('./'));
+app.use('/js', express.static('./test'));
+app.use('/', express.static('./test'));
 app.listen(3000);
 
 rpcManager.create(workers => {
