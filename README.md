@@ -1,13 +1,15 @@
 #Maus
 
-A Simple JSON-RPC Framework Based on Websocket
+A Simple JSON-RPC Framework running in NodeJS or Browser, based on websocket.
 
+------
 
 #Install
 ```
 npm install maus --save
 ```
 
+------
 #QuickStart
 
 ###worker.js
@@ -26,7 +28,9 @@ rpcWorker.create({
 ```
 node worker.js
 ```
+__Or you can webpack it and run it in browser!!!__
 
+------
 ###manager.js
 
 ```js
@@ -45,6 +49,10 @@ setTimeout(() => {
 
 ```
 
+```
+node manager.js
+```
+------
 #Usage
 ###1、Worker
 #####Worker.create(methodObject, path)
