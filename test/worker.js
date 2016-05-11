@@ -8,4 +8,4 @@ rpcWorker.create({
         })
     },
     fib: fib
-}, 'http://192.168.1.100:8124');
+}, 'http://localhost:8124');

@@ -1,11 +1,18 @@
 var rpcManager = require('../src/manager');
+var express = require('express');
+var app = express();
+
+app.use('/js', express.static('./'));
+app.use('/', express.static('./'));
+app.listen(3000);
+
 rpcManager.create(workers => {
     console.log('task start!')
     var fib = x => x > 1 ? fib(x - 1) + fib(x - 2) : x;
-    var startTime = new Date().getTime();
-    var result = fib(45);
-    var endTime = new Date().getTime();
-    console.log('native run time:', endTime - startTime, 'result:', result);
+    // var startTime = new Date().getTime();
+    // var result = fib(45);
+    // var endTime = new Date().getTime();
+    // console.log('native run time:', endTime - startTime, 'result:', result);
 
     var fibWorkers = function(x) {
         return new Promise((resolve, reject) => {

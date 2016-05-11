@@ -4,9 +4,6 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-app.use('/js', express.static('./'));
-app.use('/', express.static('./'));
-
 function jsonRpcData(message, body) {
     this.id = uuid.v4();
     this.message = message;
@@ -32,7 +29,7 @@ var rpcManager = {
             });
             worker.on('disconnect', () => {
                 delete this.__workerList[workerID];
-            })
+            });
             this.__init(workerID);
         })
         server.listen(port);
@@ -60,6 +57,7 @@ var rpcManager = {
                 if (this.__waitingForInit) {
                     this.start();
                 }
+                this.__digest(workerID);
                 break;
             case 'function call':
                 var result = data.body.result;
@@ -68,11 +66,7 @@ var rpcManager = {
                 this.__clearCallback(id);
 
                 //检查队列中是否有等待的任务
-                if (this.__functionCallQueue.length > 0) {
-                    this.__send(this.__functionCallQueue.shift(), workerID);
-                } else {
-                    this.__workerList[workerID].isBusy = false;
-                }
+                this.__digest(workerID);
                 break;
         }
     },
@@ -86,6 +80,13 @@ var rpcManager = {
     },
     __send: function(data, workerID) {
         this.__workerList[workerID].socket.emit('data', data);
+    },
+    __digest: function(workerID) {
+        if (this.__functionCallQueue.length > 0) {
+            this.__send(this.__functionCallQueue.shift(), workerID);
+        } else {
+            this.__workerList[workerID].isBusy = false;
+        }
     },
     __functionCall: function(funcName, params, callback) {
         var data = new jsonRpcData('function call', {

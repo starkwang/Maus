@@ -1,30 +1,32 @@
 {
-  "name": "rpc",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/starkwang/RPC.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/starkwang/RPC/issues"
-  },
-  "homepage": "https://github.com/starkwang/RPC#readme",
-  "dependencies": {
-    "babel": "^6.5.2",
-    "babel-core": "^6.8.0",
-    "babel-loader": "^6.2.4",
-    "express": "^4.13.4",
-    "node-uuid": "^1.4.7",
-    "socket.io": "^1.4.6",
-    "socket.io-client": "^1.4.6",
-    "webpack": "^1.13.0"
-  }
+    "name": "maus",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/starkwang/RPC.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/starkwang/RPC/issues"
+    },
+    "homepage": "https://github.com/starkwang/RPC#readme",
+    "dependencies": {
+        "express": "^4.13.4",
+        "node-uuid": "^1.4.7",
+        "socket.io": "^1.4.6",
+        "socket.io-client": "^1.4.6",
+    },
+    "devDependencies": {
+        "webpack": "^1.13.0",
+        "babel": "^6.5.2",
+        "babel-core": "^6.8.0",
+        "babel-loader": "^6.2.4",
+    }
 }

@@ -1,6 +1,6 @@
 var webpack = require('webpack');
 module.exports = {
-    entry: './worker.js',
+    entry: './test/worker.js',
     output: {
         filename: 'worker-browser.bundle.js'
     },
