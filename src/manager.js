@@ -84,7 +84,14 @@ var rpcManager = {
     },
     __digest: function(workerID) {
         if (this.__functionCallQueue.length > 0) {
-            this.__send(this.__functionCallQueue.shift(), workerID);
+            var task = this.__functionCallQueue.shift();
+            var funcName = task.body.funcName
+            if(funcName.slice(funcName.length - 5, funcName.length) == 'Async'){
+                this.__send(task, workerID);
+                this.__workerList[workerID].isBusy = false;
+            }else{
+                this.__send(task, workerID);
+            }
         } else {
             this.__workerList[workerID].isBusy = false;
         }
@@ -95,16 +102,27 @@ var rpcManager = {
             params: params
         });
         this.__registerCallback(data.id, callback);
+        if (funcName.slice(funcName.length - 5, funcName.length) == 'Async') {
+            //Promise
+            for (var workerID in this.__workerList) {
+                if (!this.__workerList[workerID].isBusy) {
+                    this.__send(data, workerID);
+                    return;
+                }
+            }
 
-        for (var workerID in this.__workerList) {
-            if (!this.__workerList[workerID].isBusy) {
-                this.__send(data, workerID);
-                this.__workerList[workerID].isBusy = true;
-                return;
+        } else {
+            for (var workerID in this.__workerList) {
+                if (!this.__workerList[workerID].isBusy) {
+                    this.__send(data, workerID);
+                    this.__workerList[workerID].isBusy = true;
+                    return;
+                }
             }
         }
         //所有worker都繁忙
         this.__functionCallQueue.push(data);
+
     },
     __registerCallback: function(id, callback) {
         this.__callbackStore[id] = callback;

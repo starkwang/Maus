@@ -2,7 +2,7 @@ var rpcWorker = require('../src/worker');
 var fib = x => x > 1 ? fib(x - 1) + fib(x - 2) : x;
 rpcWorker.create({
     add: (x, y) => x + y,
-    promise: () => {
+    promiseAsync: () => {
         return new Promise((resolve, reject) => {
             setTimeout(() => resolve('promise'), 1000)
         })
