@@ -1,7 +1,5 @@
 var uuid = require('node-uuid');
-var express = require('express');
-var app = express();
-var server = require('http').createServer(app);
+var server = require('http').createServer();
 var io = require('socket.io')(server);
 
 function jsonRpcData(message, body) {
@@ -10,35 +8,47 @@ function jsonRpcData(message, body) {
     this.body = body;
 }
 
-var rpcManager = {
-    __workerList: {},
-    __callbackStore: {},
-    __functionCallQueue: [],
-    create: function(callback, port) {
-        this.__workersStaticCallback = callback;
-        io.on('connection', worker => {
-            console.log('worker connected');
-            var workerID = uuid.v4();
-            this.__workerList[workerID] = {
-                isBusy: false,
-                socket: worker
-            };
-            worker.on('data', data => {
-                console.log('recieve data:', data);
-                this.__handleData(data, workerID);
-            });
-            worker.on('disconnect', () => {
-                delete this.__workerList[workerID];
-            });
-            this.__init(workerID);
+function rpcManager(port) {
+    this.__workerList = {};
+    this.__callbackStore = {};
+    this.__functionCallQueue = [];
+    this.__doQueue = [];
+    this.__port = port;
+    io.on('connection', worker => {
+        console.log('worker connected');
+        var workerID = uuid.v4();
+        this.__workerList[workerID] = {
+            isBusy: false,
+            socket: worker
+        };
+        worker.on('data', data => {
+            console.log('recieve data:', data);
+            this.__handleData(data, workerID);
+        });
+        worker.on('disconnect', () => {
+            delete this.__workerList[workerID];
+        });
+        this.__init(workerID);
+    })
+
+    this.do = function(callback) {
+        if (this.__initComplete) {
+            callback(this.__workers);
+        } else {
+            this.__doQueue.push(callback);
+        }
+
+    };
+    this.__deferDo = function() {
+        this.__doQueue.forEach(callback => {
+            callback(this.__workers);
         })
-        server.listen(port);
-    },
-    __init: function(workerID) {
+    }
+    this.__init = function(workerID) {
         var data = new jsonRpcData('init');
         this.__send(data, workerID);
-    },
-    __handleData: function(data, workerID) {
+    };
+    this.__handleData = function(data, workerID) {
         switch (data.message) {
             case 'init':
                 var workers = {
@@ -47,16 +57,35 @@ var rpcManager = {
                 };
                 var funcNames = data.body;
                 funcNames.forEach(funcName => {
+                    //params表示方法：
+                    //type: common      -> 数字、字符串、数组、对象、或前者嵌套
+                    //      function    -> 函数字符串
+                    //value: 具体值
                     workers[funcName] = new Function(`
                         console.log("call ${funcName}");
-                        var params = Array.prototype.slice.call(arguments,0,arguments.length-1);
+                        var params = Array.prototype.slice.call(arguments,0,arguments.length-1)
+                            .map(item => {
+                                if(typeof item === 'function'){
+                                    return {
+                                        type: 'function',
+                                        funcName: item.funcName || 'tmp',
+                                        value: item.toString()
+                                    }
+                                }else{
+                                    return {
+                                        type: 'common',
+                                        value: item
+                                    }
+                                }
+                            });
                         var callback = arguments[arguments.length-1];
                         this.__functionCall('${funcName}',params,callback);
                     `)
                 })
                 this.__workers = workers;
-                if (this.__waitingForInit) {
-                    this.start();
+                if (!this.__initComplete) {
+                    this.__initComplete = true;
+                    this.__deferDo();
                 }
                 this.__digest(workerID);
                 break;
@@ -70,33 +99,25 @@ var rpcManager = {
                 this.__digest(workerID);
                 break;
         }
-    },
-    start: function(callback) {
-        if (this.__workers != undefined) {
-            this.__workersStaticCallback(this.__workers);
-            this.__waitingForInit = false;
-        } else {
-            this.__waitingForInit = true;
-        }
-    },
-    __send: function(data, workerID) {
+    };
+    this.__send = function(data, workerID) {
         this.__workerList[workerID].socket.emit('data', data);
-    },
-    __digest: function(workerID) {
+    };
+    this.__digest = function(workerID) {
         if (this.__functionCallQueue.length > 0) {
             var task = this.__functionCallQueue.shift();
             var funcName = task.body.funcName
-            if(funcName.slice(funcName.length - 5, funcName.length) == 'Async'){
+            if (funcName.slice(funcName.length - 5, funcName.length) == 'Async') {
                 this.__send(task, workerID);
                 this.__workerList[workerID].isBusy = false;
-            }else{
+            } else {
                 this.__send(task, workerID);
             }
         } else {
             this.__workerList[workerID].isBusy = false;
         }
-    },
-    __functionCall: function(funcName, params, callback) {
+    };
+    this.__functionCall = function(funcName, params, callback) {
         var data = new jsonRpcData('function call', {
             funcName: funcName,
             params: params
@@ -123,13 +144,16 @@ var rpcManager = {
         //所有worker都繁忙
         this.__functionCallQueue.push(data);
 
-    },
-    __registerCallback: function(id, callback) {
+    };
+    this.__registerCallback = function(id, callback) {
         this.__callbackStore[id] = callback;
-    },
-    __clearCallback: function(id) {
+    };
+    this.__clearCallback = function(id) {
         delete this.__callbackStore[id];
     }
+    console.log('Maus Manager listen at ', port);
+    server.listen(this.__port);
+
 }
 
 module.exports = rpcManager;
