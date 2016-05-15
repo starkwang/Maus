@@ -31,10 +31,23 @@ var rpcWorker = {
                 break;
             case 'function call':
                 var funcName = data.body.funcName;
-                var params = data.body.params;
+                //params表示方法：
+                //type: common      -> 数字、字符串、数组、对象、或前者嵌套
+                //      function    -> 函数字符串
+                //value: 具体值
+                var params = data.body.params
+                    .map(item => {
+                        if (item.type === 'common') {
+                            return item.value;
+                        }
+                        if (item.type === 'function') {
+                            eval("var tmp = " + item.value);
+                            return tmp;
+                        }
+                    });
                 var result = this.__funcs[funcName].apply(this.__funcs, params);
                 if (typeof(result.then) == 'function') {
-
+                    //promise
                     result.then(r => {
                         this.__send(data.id, 'function call', {
                             result: r

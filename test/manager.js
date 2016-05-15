@@ -8,10 +8,7 @@ app.listen(3000);
 
 var a = new rpcManager(8124);
 
-setInterval(() => {
-    a.do(workers => {
-        workers.fib(40, r => console.log(r));
-        workers.fib(39, r => console.log(r));
-        workers.fib(38, r => console.log(r));
-    })
-}, 1000);
+
+a.do(workers => {
+    workers.do(10, a => a+1, result => console.log(result));
+})

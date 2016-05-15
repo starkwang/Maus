@@ -30,16 +30,16 @@ function rpcManager(port) {
         });
         this.__init(workerID);
     })
-    
+
     this.do = function(callback) {
-        if(this.__initComplete){
+        if (this.__initComplete) {
             callback(this.__workers);
-        }else{
+        } else {
             this.__doQueue.push(callback);
         }
 
     };
-    this.__deferDo = function(){
+    this.__deferDo = function() {
         this.__doQueue.forEach(callback => {
             callback(this.__workers);
         })
@@ -57,9 +57,26 @@ function rpcManager(port) {
                 };
                 var funcNames = data.body;
                 funcNames.forEach(funcName => {
+                    //params表示方法：
+                    //type: common      -> 数字、字符串、数组、对象、或前者嵌套
+                    //      function    -> 函数字符串
+                    //value: 具体值
                     workers[funcName] = new Function(`
                         console.log("call ${funcName}");
-                        var params = Array.prototype.slice.call(arguments,0,arguments.length-1);
+                        var params = Array.prototype.slice.call(arguments,0,arguments.length-1)
+                            .map(item => {
+                                if(typeof item === 'function'){
+                                    return {
+                                        type: 'function',
+                                        value: item.toString()
+                                    }
+                                }else{
+                                    return {
+                                        type: 'common',
+                                        value: item
+                                    }
+                                }
+                            });
                         var callback = arguments[arguments.length-1];
                         this.__functionCall('${funcName}',params,callback);
                     `)
@@ -135,7 +152,7 @@ function rpcManager(port) {
     }
     console.log('Maus Manager listen at ', port);
     server.listen(this.__port);
-    
+
 }
 
 module.exports = rpcManager;
