@@ -49,7 +49,7 @@ myManager.do(workers => {
 	workers.promiseAsync(log);
 	//To write a recursion, you should use '__this' as the function itself 
 	var fib = x => x > 1 ? __this(x - 1) + __this(x - 2) : x;
-	workers.do(10, fib, log);
+	workers.calculate(10, fib, log);
 })
 
 ```
