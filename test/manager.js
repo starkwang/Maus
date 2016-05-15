@@ -10,5 +10,5 @@ var a = new rpcManager(8124);
 
 
 a.do(workers => {
-    workers.do(10, a => a+1, result => console.log(result));
+    workers.do(10, x => x > 1 ? __this(x - 1) + __this(x - 2) : x, result => console.log(result));
 })

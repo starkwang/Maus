@@ -68,6 +68,7 @@ function rpcManager(port) {
                                 if(typeof item === 'function'){
                                     return {
                                         type: 'function',
+                                        funcName: item.funcName || 'tmp',
                                         value: item.toString()
                                     }
                                 }else{

@@ -41,8 +41,8 @@ var rpcWorker = {
                             return item.value;
                         }
                         if (item.type === 'function') {
-                            eval("var tmp = " + item.value);
-                            return tmp;
+                            eval("var __this = " + item.value);
+                            return __this;
                         }
                     });
                 var result = this.__funcs[funcName].apply(this.__funcs, params);
