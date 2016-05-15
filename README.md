@@ -23,7 +23,8 @@ rpcWorker.create({
         return new Promise((resolve, reject) => {
             setTimeout(() => resolve('promise'), 1000)
         })
-    }
+    },
+    calculate: (x, f) => f(x)
 }, 'http://localhost:8124');
 ```
 ```
@@ -37,16 +38,17 @@ __Or you can webpack it and run it in browser!!!__
 ```js
 var rpcManager = require('maus').manager;
 
-rpcManager.create(workers => {
-    console.log('task start!')
-    workers.promiseAsync(result => console.log('result for promise:', result));
-    workers.add(1, 1, result => console.log('result for add(1,1):', result));
-}, 8124)
+var myManager = new rpcManager(8124);
 
-//task start after 5s
-setTimeout(() => {
-    rpcManager.start()
-}, 5000);
+myManager.do(workers => {
+	var log = result => console.log(result);
+	
+	workers.add(1, 1, log);
+	workers.promiseAsync(log);
+	//To write a recursion, you should use '__this' as the function itself 
+	var fib = x => x > 1 ? __this(x - 1) + __this(x - 2) : x;
+	workers.do(10, fib, log);
+})
 
 ```
 
@@ -69,7 +71,7 @@ The methodObject contains some methods for RPC. Methods must return a value or a
         return new Promise((resolve, reject) => {
             setTimeout(() => resolve('promise'), 1000)
         })
-   }
+    }
 }
 ```
 
@@ -80,24 +82,30 @@ The path of `Manager`
 
 ###2、Manager
 
-#####Manager.create(callback, port)
-
-- callback
-
-The callback function will be executed after `Manager.start()`. It will gets a `workers static` as arguments, which contains all the methods in `Worker`
-
-```js
-Manager.create(workers => {
-    console.log('task start!')
-    workers.promiseAsync(result => console.log(result));
-    workers.add(1, 1, result => console.log(result));
-}, 8124)
-```
-
+#####Manager(port)
 - port
 
 The port that Manager listens to
 
-#####Manager.start()
+```js
+var myManager = new Manager(8124);
+```
 
-- Start the callback in Manager
+#####Manager.do(callback)
+- callback
+
+The callback function will be executed after init. It will gets a `workers static` as arguments, which contains all the methods in `Worker`
+
+```js
+Manager.do(workers => {
+    console.log('task start!')
+    workers.promiseAsync(result => console.log(result));
+    workers.add(1, 1, result => console.log(result));
+});
+```
+
+The params of methods in `Worker` can be a `Number`, `Object`, `String`, `Array`, or even `Function`. Please use `__this` as the function itself in any recursion algorithm, such as:
+
+```js
+var fib = x => x > 1 ? __this(x - 1) + __this(x - 2) : x;
+```
