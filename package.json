@@ -1,28 +1,29 @@
 {
-  "name": "maus",
-  "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/starkwang/Maus.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/starkwang/Maus/issues"
-  },
-  "homepage": "https://github.com/starkwang/Maus#readme",
-  "dependencies": {
-    "node-uuid": "^1.4.7",
-    "socket.io": "^1.4.6",
-    "socket.io-client": "^1.4.6"
-  },
-  "devDependencies": {
-    "webpack": "^1.13.0",
-    "babel": "^6.5.2",
-    "babel-core": "^6.8.0",
-    "babel-loader": "^6.2.4",
-    "express": "^4.13.4"
-  }
+    "name": "maus",
+    "version": "0.2.0",
+    "description": "A JSON-RPC Framework running in NodeJS or Browser, based on websocket.",
+    "keywords": ["rpc", "RPC"],
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/starkwang/Maus.git"
+    },
+    "author": "starkwang",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/starkwang/Maus/issues"
+    },
+    "homepage": "https://github.com/starkwang/Maus",
+    "dependencies": {
+        "node-uuid": "^1.4.7",
+        "socket.io": "^1.4.6",
+        "socket.io-client": "^1.4.6"
+    },
+    "devDependencies": {
+        "webpack": "^1.13.0",
+        "babel": "^6.5.2",
+        "babel-core": "^6.8.0",
+        "babel-loader": "^6.2.4",
+        "express": "^4.13.4"
+    }
 }
