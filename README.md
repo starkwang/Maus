@@ -3,7 +3,7 @@
 A Simple JSON-RPC Framework running in NodeJS or Browser, based on websocket.
 
 
-[![npm version](https://badge.fury.io/js/maus.svg)](https://badge.fury.io/js/maus)
+[![0.2.1](https://badge.fury.io/js/maus.svg)](https://badge.fury.io/js/maus)
 
 ------
 
