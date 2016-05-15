@@ -1,7 +1,9 @@
 #Maus 
-[![npm version](https://badge.fury.io/js/maus.svg)](https://badge.fury.io/js/maus)
 
 A Simple JSON-RPC Framework running in NodeJS or Browser, based on websocket.
+
+
+[![npm version](https://badge.fury.io/js/maus.svg)](https://badge.fury.io/js/maus)
 
 ------
 
