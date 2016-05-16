@@ -30,9 +30,7 @@ function rpcManager(port) {
             delete this.__workerList[workerID];
             //检查__callbackStore中有没有这个worker负责的callback
             for (var id in this.__callbackStore) {
-                console.log("find!!!");
                 var callback = this.__callbackStore[id];
-                console.log(callback);
                 if (callback.workerID === workerID) {
                     this.__functionCall(callback.rpcData.body.funcName, callback.rpcData.body.params, callback.callback);
                 }
@@ -114,12 +112,16 @@ function rpcManager(port) {
     };
     this.__digest = function(workerID) {
         if (this.__functionCallQueue.length > 0) {
-            var task = this.__functionCallQueue.shift();
+            var t = this.__functionCallQueue.shift();
+            var task = t.rpcData;
+            var callback = t.callback;
             var funcName = task.body.funcName
             if (funcName.slice(funcName.length - 5, funcName.length) == 'Async') {
+                this.__registerCallback(task.id, callback, workerID, task);
                 this.__send(task, workerID);
                 this.__workerList[workerID].isBusy = false;
             } else {
+                this.__registerCallback(task.id, callback, workerID, task);
                 this.__send(task, workerID);
             }
         } else {
@@ -140,7 +142,6 @@ function rpcManager(port) {
                     return;
                 }
             }
-
         } else {
             for (var workerID in this.__workerList) {
                 if (!this.__workerList[workerID].isBusy) {
@@ -152,7 +153,10 @@ function rpcManager(port) {
             }
         }
         //所有worker都繁忙
-        this.__functionCallQueue.push(data);
+        this.__functionCallQueue.push({
+            rpcData: data,
+            callback: callback
+        });
     };
     this.__registerCallback = function(id, callback, workerID, rpcData) {
         this.__callbackStore[id] = {

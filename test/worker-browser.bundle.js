@@ -54,14 +54,13 @@
 	    add: function add(x, y) {
 	        return x + y;
 	    },
-	    promise: function promise() {
-	        return new Promise(function (resolve, reject) {
-	            setTimeout(function () {
-	                return resolve('promise');
-	            }, 1000);
-	        });
-	    },
-	    fib: fib
+	    fib: fib,
+	    do: function _do(v, f1, f2) {
+	        console.log(v, f1, f2);
+	        console.log(f1(v));
+	        console.log(f2(f1(v)));
+	        return f2(f1(v));
+	    }
 	}, 'http://localhost:8124');
 
 /***/ },
@@ -107,10 +106,22 @@
 	                break;
 	            case 'function call':
 	                var funcName = data.body.funcName;
-	                var params = data.body.params;
+	                //params表示方法：
+	                //type: common      -> 数字、字符串、数组、对象、或前者嵌套
+	                //      function    -> 函数字符串
+	                //value: 具体值
+	                var params = data.body.params.map(function (item) {
+	                    if (item.type === 'common') {
+	                        return item.value;
+	                    }
+	                    if (item.type === 'function') {
+	                        eval("var __this = " + item.value);
+	                        return __this;
+	                    }
+	                });
 	                var result = this.__funcs[funcName].apply(this.__funcs, params);
 	                if (typeof result.then == 'function') {
-
+	                    //promise
 	                    result.then(function (r) {
 	                        _this2.__send(data.id, 'function call', {
 	                            result: r
