@@ -26,7 +26,17 @@ function rpcManager(port) {
             this.__handleData(data, workerID);
         });
         worker.on('disconnect', () => {
+            console.log("disconnect");
             delete this.__workerList[workerID];
+            //检查__callbackStore中有没有这个worker负责的callback
+            for (var id in this.__callbackStore) {
+                console.log("find!!!");
+                var callback = this.__callbackStore[id];
+                console.log(callback);
+                if (callback.workerID === workerID) {
+                    this.__functionCall(callback.rpcData.body.funcName, callback.rpcData.body.params, callback.callback);
+                }
+            }
         });
         this.__init(workerID);
     })
@@ -92,9 +102,8 @@ function rpcManager(port) {
             case 'function call':
                 var result = data.body.result;
                 var id = data.id;
-                this.__callbackStore[id](result);
+                this.__callbackStore[id].callback(result);
                 this.__clearCallback(id);
-
                 //检查队列中是否有等待的任务
                 this.__digest(workerID);
                 break;
@@ -122,11 +131,11 @@ function rpcManager(port) {
             funcName: funcName,
             params: params
         });
-        this.__registerCallback(data.id, callback);
         if (funcName.slice(funcName.length - 5, funcName.length) == 'Async') {
             //Promise
             for (var workerID in this.__workerList) {
                 if (!this.__workerList[workerID].isBusy) {
+                    this.__registerCallback(data.id, callback, workerID, data);
                     this.__send(data, workerID);
                     return;
                 }
@@ -135,6 +144,7 @@ function rpcManager(port) {
         } else {
             for (var workerID in this.__workerList) {
                 if (!this.__workerList[workerID].isBusy) {
+                    this.__registerCallback(data.id, callback, workerID, data);
                     this.__send(data, workerID);
                     this.__workerList[workerID].isBusy = true;
                     return;
@@ -143,17 +153,19 @@ function rpcManager(port) {
         }
         //所有worker都繁忙
         this.__functionCallQueue.push(data);
-
     };
-    this.__registerCallback = function(id, callback) {
-        this.__callbackStore[id] = callback;
+    this.__registerCallback = function(id, callback, workerID, rpcData) {
+        this.__callbackStore[id] = {
+            callback: callback,
+            workerID: workerID,
+            rpcData: rpcData
+        };
     };
     this.__clearCallback = function(id) {
         delete this.__callbackStore[id];
     }
     console.log('Maus Manager listen at ', port);
     server.listen(this.__port);
-
 }
 
 module.exports = rpcManager;

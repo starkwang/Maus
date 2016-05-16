@@ -1,0 +1,14 @@
+职介所：
+1、Worker向职介所注册自己(Worker.registerParkserver(path, workerType,funcs))
+2、Manager向职介所要求Worker，职介所把Manager的path发给Worker，Worker连接Manager
+Manager.connectParkserver(path)
+Manager.getWorker(workerType).do(workers => {
+    
+})
+3、Manager正常调用
+优点：计算网络可以随时加入新的Manager和Worker（不同的Worker含有不同的方法，需要对应调用）
+
+
+数据仓库：
+1、前面步骤不影响
+2、Manager调用时给仓库注册回调，Worker返回值发送给仓库，仓库执行回调给Manager
