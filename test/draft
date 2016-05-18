@@ -12,3 +12,7 @@ Manager.getWorker(workerType).do(workers => {
 数据仓库：
 1、前面步骤不影响
 2、Manager调用时给仓库注册回调，Worker返回值发送给仓库，仓库执行回调给Manager
+
+
+1、修复worker连接失去后报错的问题，现在worker连接失去后会重新分配任务
+2、

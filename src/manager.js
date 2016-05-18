@@ -1,6 +1,7 @@
 var uuid = require('node-uuid');
 var server = require('http').createServer();
 var io = require('socket.io')(server);
+var ioc = require('socket.io-client');
 
 function jsonRpcData(message, body) {
     this.id = uuid.v4();
@@ -46,6 +47,42 @@ function rpcManager(port) {
             this.__doQueue.push(callback);
         }
 
+    };
+
+    this.connectParkserver = function(path) {
+        var socket = ioc(path);
+        socket.on('connect', () => {
+            console.log('connect parkserver');
+            this.__parkserverSocket = socket;
+            if (this.__waitingForConnectParkserver) {
+                this.getWorker(this.__waitingForConnectParkserver);
+            }
+        });
+    };
+
+    this.getWorker = function(config) {
+        var amount = config.amount || 'default';
+        var workerType = config.workerType || 'default';
+        var address = config.address;
+        if (this.__parkserverSocket) {
+            console.log('get worker: ', workerType, 'amount: ', amount);
+            this.__parkserverSocket.emit('data', {
+                message: 'get worker',
+                body: {
+                    amount: amount,
+                    workerType: workerType,
+                    address: address
+                }
+            })
+        } else {
+            console.log('not connect')
+            this.__waitingForConnectParkserver = {
+                amount: amount,
+                workerType: workerType,
+                address: address
+            };
+        }
+        return this;
     };
     this.__deferDo = function() {
         this.__doQueue.forEach(callback => {

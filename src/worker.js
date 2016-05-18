@@ -18,15 +18,36 @@ var rpcWorker = {
             this.__handleData(data);
         })
     },
+    registerParkserver: function(path, workerType, funcs) {
+        this.__funcs = funcs;
+        var socket = io(path);
+        socket.on('connect', () => {
+            socket.on('data', data => {
+                console.log('recieve data:', data);
+                this.__handleData(data);
+            })
+            socket.emit('data', {
+                message: 'register',
+                body: {
+                    type: workerType,
+                    funcs: this.__getFuncs()
+                }
+            })
+        });
+    },
+    __getFuncs: function(funcs) {
+        var body = [];
+        for (var funcName in this.__funcs) {
+            if (typeof(this.__funcs[funcName]) == 'function') {
+                body.push(funcName);
+            }
+        }
+        return body;
+    },
     __handleData: function(data) {
         switch (data.message) {
             case 'init':
-                var body = [];
-                for (var funcName in this.__funcs) {
-                    if (typeof(this.__funcs[funcName]) == 'function') {
-                        body.push(funcName);
-                    }
-                }
+                var body = this.__getFuncs();
                 this.__send(data.id, 'init', body);
                 break;
             case 'function call':
@@ -58,6 +79,10 @@ var rpcWorker = {
                         result: result
                     });
                 }
+                break;
+            case 'link manager':
+                var address = data.body.address;
+                this.create(this.__funcs, address);
                 break;
             default:
                 console.log('unexpected message: ', data.message, data);
