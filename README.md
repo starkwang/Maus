@@ -168,6 +168,8 @@ Manager.getWorker({
 	//Do Something...
 });
 ```
+#####Manager.end
+Release connected workers. Those workers will be reassigned by Parkserver.
 
 
 
