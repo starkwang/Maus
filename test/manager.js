@@ -18,7 +18,11 @@ a.getWorker({
     workers.add(1, 1, r => console.log(r))
     workers.add(1, 1, r => console.log(r))
     workers.add(1, 1, r => console.log(r))
-});
+})
+
+setTimeout(()=>{
+    a.end();
+}, 1000);
 
 // a.do(workers => {
 //     var log = x => console.log(x);

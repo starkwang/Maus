@@ -46,9 +46,8 @@ function rpcManager(port) {
         } else {
             this.__doQueue.push(callback);
         }
-
+        return this;
     };
-
     this.connectParkserver = function(path) {
         var socket = ioc(path);
         socket.on('connect', () => {
@@ -75,7 +74,7 @@ function rpcManager(port) {
                 }
             })
         } else {
-            console.log('not connect')
+            console.log('not connect');
             this.__waitingForConnectParkserver = {
                 amount: amount,
                 workerType: workerType,
@@ -83,6 +82,10 @@ function rpcManager(port) {
             };
         }
         return this;
+    };
+    this.end = function(){
+        io.close();
+        server.listen(this.__port);
     };
     this.__deferDo = function() {
         this.__doQueue.forEach(callback => {

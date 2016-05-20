@@ -1,6 +1,6 @@
 {
     "name": "maus",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "A Tiny RPC Framework running in NodeJS or Browser",
     "keywords": ["rpc", "RPC"],
     "main": "index.js",
