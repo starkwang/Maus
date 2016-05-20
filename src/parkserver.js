@@ -7,7 +7,7 @@ function parkserver(port) {
     //__workerList:
     //  key        :  value
     //  workerType : [workerList]
-    //  "common"   : [{id: "id1", socket: sokcet1},...]
+    //  "common"   : [{id: "id1", socket: sokcet1, isAvailable:true},...]
     this.__workerList = {};
     this.__waitingForWorker = [];
     io.on('connection', worker => {
@@ -49,7 +49,15 @@ function parkserver(port) {
                 var amount = data.body.amount;
                 var address = data.body.address;
                 this.__getWorker(workerType, amount, address);
-
+                break;
+            case 'manager lost':
+                for (var workerType in this.__workerList) {
+                    this.__workerList[workerType].forEach(worker => {
+                        if(worker.id = workerID){
+                            worker.isAvailable = true;
+                        }
+                    })
+                }
         }
     }
     this.__getWorker = function(workerType, amount, address, noPush) {

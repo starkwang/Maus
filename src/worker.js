@@ -2,7 +2,8 @@ var uuid = require('node-uuid');
 var io = require('socket.io-client');
 
 var rpcWorker = {
-    __socket: undefined,
+    __socket: undefined, //socket to manager
+    __parkserverSocket: undefined, //socket to parkserver
     create: function(funcs, path) {
         this.__funcs = funcs;
         var socket = io(path);
@@ -12,6 +13,14 @@ var rpcWorker = {
         });
         socket.on('disconnect', () => {
             console.log('服务器已断开');
+            //如果有parkserver的话，通知parkserver自己目前可用，关闭当前的socket
+            if (this.__parkserverSocket) {
+                this.__parkserverSocket.emit('data', {
+                    message: 'manager lost'
+                });
+                this.__socket.close();
+                this.__socket = undefined;
+            }
         });
         socket.on('data', data => {
             console.log('recieve data:', data);
@@ -22,6 +31,7 @@ var rpcWorker = {
         this.__funcs = funcs;
         var socket = io(path);
         socket.on('connect', () => {
+            this.__parkserverSocket = socket;
             socket.on('data', data => {
                 console.log('recieve data:', data);
                 this.__handleData(data);

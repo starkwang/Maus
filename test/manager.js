@@ -10,10 +10,13 @@ var a = new rpcManager(8124);
 
 a.connectParkserver('http://localhost:8500');
 a.getWorker({
-    amount: 3,
+    amount: 2,
     workerType: 'common',
     address: 'http://localhost:8124'
 }).do(workers => {
+    workers.add(1, 1, r => console.log(r))
+    workers.add(1, 1, r => console.log(r))
+    workers.add(1, 1, r => console.log(r))
     workers.add(1, 1, r => console.log(r))
 });
 
