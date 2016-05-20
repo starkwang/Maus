@@ -1,7 +1,7 @@
 {
     "name": "maus",
-    "version": "0.2.1",
-    "description": "A JSON-RPC Framework running in NodeJS or Browser, based on websocket.",
+    "version": "0.3.0",
+    "description": "A Tiny RPC Framework running in NodeJS or Browser",
     "keywords": ["rpc", "RPC"],
     "main": "index.js",
     "repository": {

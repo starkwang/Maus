@@ -13,11 +13,6 @@ var fib = x => x > 1 ? fib(x - 1) + fib(x - 2) : x;
 rpcWorker.registerParkserver('http://localhost:8500', 'common', {
     add: (x, y) => x + y,
     fib: fib,
-    do: (v, f1, f2) => {
-        console.log(v, f1, f2);
-        console.log(f1(v));
-        console.log(f2(f1(v)));
-        return f2(f1(v));
-    }
+    do: (v, f) => f(v)
 
 })
