@@ -183,7 +183,7 @@ Manager can get workers it wants through parkserver. If the Manager is died, the
 #####Parkserver(port)
 - port
 
-The port that Parkserver listens to
+The port that Parkserver listens to
 
 ```js
 var parkserver = require('maus').parkserver;
