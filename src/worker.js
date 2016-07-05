@@ -78,9 +78,10 @@ var rpcWorker = {
                     });
                 var err, result;
                 try{
+                    console.log("aaa",this.__funcs[funcName].apply(this.__funcs, params));
                     result = this.__funcs[funcName].apply(this.__funcs, params);
                 }catch(e){
-                    err = e;
+                    err = e.toString();
                 }
                 if(err){
                     this.__send(data.id, 'function call', {
