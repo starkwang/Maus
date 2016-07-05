@@ -139,8 +139,9 @@ function rpcManager(port) {
                 break;
             case 'function call':
                 var result = data.body.result;
+                var error = data.body.error;
                 var id = data.id;
-                this.__callbackStore[id].callback(result);
+                this.__callbackStore[id].callback(result, error);
                 this.__clearCallback(id);
                 //检查队列中是否有等待的任务
                 this.__digest(workerID);

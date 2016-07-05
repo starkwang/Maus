@@ -76,17 +76,38 @@ var rpcWorker = {
                             return __this;
                         }
                     });
-                var result = this.__funcs[funcName].apply(this.__funcs, params);
+                var err, result;
+                try{
+                    result = this.__funcs[funcName].apply(this.__funcs, params);
+                }catch(e){
+                    err = e;
+                }
+                if(err){
+                    this.__send(data.id, 'function call', {
+                        result: null,
+                        error: err
+                    });
+                    break;
+                }
                 if (typeof(result.then) == 'function') {
                     //promise
                     result.then(r => {
                         this.__send(data.id, 'function call', {
-                            result: r
+                            result: r,
+                            error: null
                         })
+                    }, err => {
+                        if(err){
+                            this.__send(data.id, 'function call', {
+                                result: null,
+                                error: err
+                            })
+                        }
                     });
                 } else {
                     this.__send(data.id, 'function call', {
-                        result: result
+                        result: result,
+                        error: null
                     });
                 }
                 break;
