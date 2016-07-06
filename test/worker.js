@@ -3,7 +3,7 @@ var fib = x => x > 1 ? fib(x - 1) + fib(x - 2) : x;
 rpcWorker.create({
     add: (x, y) => x + y,
     fib: fib,
-    divide: (x,y) => x.value/y.value,
+    divide: (x,y) => x/y,
     do: (v, f1, f2) => {
         console.log(v, f1, f2);
         console.log(f1(v));

@@ -1,6 +1,6 @@
 var uuid = require('node-uuid');
 var io = require('socket.io-client');
-
+var Type = require('./type');
 var rpcWorker = {
     __socket: undefined, //socket to manager
     __parkserverSocket: undefined, //socket to parkserver
@@ -78,10 +78,9 @@ var rpcWorker = {
                     });
                 var err, result;
                 try{
-                    console.log("aaa",this.__funcs[funcName].apply(this.__funcs, params));
                     result = this.__funcs[funcName].apply(this.__funcs, params);
                 }catch(e){
-                    err = e.toString();
+                    err = Type.wrap(e);
                 }
                 if(err){
                     this.__send(data.id, 'function call', {

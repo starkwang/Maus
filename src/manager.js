@@ -2,6 +2,7 @@ var uuid = require('node-uuid');
 var server = require('http').createServer();
 var io = require('socket.io')(server);
 var ioc = require('socket.io-client');
+var Type = require('./type');
 
 function jsonRpcData(message, body) {
     this.id = uuid.v4();
@@ -139,7 +140,7 @@ function rpcManager(port) {
                 break;
             case 'function call':
                 var result = data.body.result;
-                var error = data.body.error;
+                var error = data.body.error?Type.unwrap(data.body.error):data.body.error;
                 var id = data.id;
                 this.__callbackStore[id].callback(result, error);
                 this.__clearCallback(id);
