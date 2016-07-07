@@ -4,6 +4,7 @@ rpcWorker.create({
     add: (x, y) => x + y,
     fib: fib,
     divide: (x,y) => x/y,
+    divide2: (x,y) => dfsa.v/fasd.v,
     do: (v, f1, f2) => {
         console.log(v, f1, f2);
         console.log(f1(v));

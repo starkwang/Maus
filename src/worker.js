@@ -79,6 +79,7 @@ var rpcWorker = {
                 var err, result;
                 try{
                     result = this.__funcs[funcName].apply(this.__funcs, params);
+                    console.log("result", result);
                 }catch(e){
                     err = Type.wrap(e);
                 }
@@ -93,7 +94,7 @@ var rpcWorker = {
                     //promise
                     result.then(r => {
                         this.__send(data.id, 'function call', {
-                            result: r,
+                            result: Type.wrap(r),
                             error: null
                         })
                     }, err => {
@@ -106,7 +107,7 @@ var rpcWorker = {
                     });
                 } else {
                     this.__send(data.id, 'function call', {
-                        result: result,
+                        result: Type.wrap(result),
                         error: null
                     });
                 }

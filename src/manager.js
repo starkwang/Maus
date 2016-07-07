@@ -139,7 +139,7 @@ function rpcManager(port) {
                 this.__digest(workerID);
                 break;
             case 'function call':
-                var result = data.body.result;
+                var result = data.body.result?Type.unwrap(data.body.result):data.body.result;
                 var error = data.body.error?Type.unwrap(data.body.error):data.body.error;
                 var id = data.id;
                 this.__callbackStore[id].callback(result, error);
