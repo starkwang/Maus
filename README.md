@@ -21,9 +21,11 @@ npm install maus --save
 var rpcWorker = require('maus').worker;
 rpcWorker.create({
     add: (x, y) => x + y,
+    divide: (x, y) => x / y,
+    newRegExp: (reg, config) => new RegExp(reg, config),
     promiseAsync: () => {
         return new Promise((resolve, reject) => {
-            setTimeout(() => resolve('promise'), 1000)
+            setTimeout(() => resolve(new Date()), 1000)
         })
     },
     calculate: (x, f) => f(x)
@@ -42,14 +44,16 @@ var rpcManager = require('maus').manager;
 var myManager = new rpcManager(8124);
 
 myManager.do(workers => {
-	var log = result => console.log(result);
+	var callback = result => console.log(result);
 	
-	workers.add(1, 1, log);
-	workers.promiseAsync(log);
+	workers.add(1, 1, callback); // return a number: 2
+	workers.divide(100, 0, callback); // return a number: Infinity
+	workers.newRegExp("abc", "ig", callback); // return a reg: /abc/ig
+	workers.promiseAsync(callback); // return a Date
 	
 	//To write a recursion, you should use '__this' as the function itself 
 	var fib = x => x > 1 ? __this(x - 1) + __this(x - 2) : x;
-	workers.calculate(10, fib, log);
+	workers.calculate(10, fib, callback);
 })
 
 ```
@@ -64,11 +68,17 @@ node manager.js
 
 - methodObject: 
 
-The methodObject contains some methods for RPC. Methods must return a value or a Promise. Please use `Async` as suffix for some async method, like `httpGetAsync`、`readFileAsync`、`somePromiseAsync`:
+The methodObject contains some methods for RPC. Methods must return a value or a Promise. 
+
+Support return type:
+`Number`, `NaN`, `Infinity`, `Error`, `Undefined`, `String`, `Array`, `Boolean`, `Date`, `RegExp`, `Object`
+
+Please use `Async` as suffix for some async method, like `httpGetAsync`、`readFileAsync`、`somePromiseAsync`:
 
 ```js
 {
 	add: (x, y) => x + y,
+	date: () => new Date(),
 	promiseAsync: () => {
         return new Promise((resolve, reject) => {
             setTimeout(() => resolve('promise'), 1000)
