@@ -1,4 +1,4 @@
-#Maus 
+# Maus 
 
 A Tiny RPC Framework running in NodeJS or Browser
 
@@ -7,15 +7,15 @@ A Tiny RPC Framework running in NodeJS or Browser
 
 ------
 
-#Install
+# Install
 ```
 npm install maus --save
 ```
 
 ------
-#QuickStart
+# QuickStart
 
-###worker.js
+### worker.js
 
 ```js
 var rpcWorker = require('maus').worker;
@@ -36,7 +36,7 @@ node worker.js
 ```
 __Or you can webpack it and run it in browser!!!__
 
-###manager.js
+### manager.js
 
 ```js
 var rpcManager = require('maus').manager;
@@ -62,9 +62,9 @@ myManager.do(workers => {
 node manager.js
 ```
 ------
-#Usage
-###1、Worker
-#####Worker.create(methodObject, path)
+# Usage
+### 1、Worker
+##### Worker.create(methodObject, path)
 
 - methodObject: 
 
@@ -92,7 +92,7 @@ Please use `Async` as suffix for some async method, like `httpGetAsync`、`readF
 The path of `Manager`
 
 
-#####Worker.registerParkserver(path, workerType, methodObject)
+##### Worker.registerParkserver(path, workerType, methodObject)
 - path
 
 The path of `Parkserver`
@@ -113,9 +113,9 @@ rpcWorker.registerParkserver('http://localhost:8500', 'common', {
 })
 ```
 
-###2、Manager
+### 2、Manager
 
-#####Manager(port)
+##### Manager(port)
 - port
 
 The port that Manager listens to
@@ -124,7 +124,7 @@ The port that Manager listens to
 var myManager = new Manager(8124);
 ```
 
-#####Manager.do(callback)
+##### Manager.do(callback)
 - callback
 
 The callback function will be executed after init. It will gets a `workers static` as arguments, which contains all the methods in `Worker`
@@ -143,7 +143,7 @@ The params of methods in `Worker` can be a `Number`, `Object`, `String`, `Array`
 var fib = x => x > 1 ? __this(x - 1) + __this(x - 2) : x;
 ```
 
-#####Manager.connectParkserver(path)
+##### Manager.connectParkserver(path)
 - path
 
 The path of Parkserver
@@ -152,7 +152,7 @@ The path of Parkserver
 Manager.connectParkserver('http://localhost:8500');
 ```
 
-#####Manager.getWorker(config)
+##### Manager.getWorker(config)
 
 This method should be called after `Manager.connectParkserver `.
 
@@ -178,19 +178,19 @@ Manager.getWorker({
 	//Do Something...
 });
 ```
-#####Manager.end
+##### Manager.end
 Release connected workers. Those workers will be reassigned by Parkserver.
 
 
 
 
-###3、Parkserver
+### 3、Parkserver
 
 Parkerver is an optional part of Maus. It will monitor working status of workers, assign suitable workers to Manager. You can use it to handle multiple Managers if needed.
 
 Manager can get workers it wants through parkserver. If the Manager is died, the workers that assigned to it will be recollected by parkserver, and can be reassigned to other Managers.
 
-#####Parkserver(port)
+##### Parkserver(port)
 - port
 
 The port that Parkserver listens to
